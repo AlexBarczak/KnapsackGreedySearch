@@ -1,3 +1,6 @@
+#ifndef KNAPSACK_H
+#define KNAPSACK_H
+
 #include <vector>
 
 #include "Item.h"
@@ -5,11 +8,15 @@
 class Knapsack
 {
 private:
-    std::vector<Item&> contents;
+    int capacity;
+    std::vector<Item*> contents;
 public:
-    Knapsack(/* args */);
+    Knapsack(int capacity);
 };
 
-Knapsack::Knapsack(/* args */)
+Knapsack::Knapsack(int capacity)
 {
+    this->capacity = capacity;
 }
+
+#endif
