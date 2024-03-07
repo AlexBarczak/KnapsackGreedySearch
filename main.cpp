@@ -1,19 +1,46 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <queue>
 
 #include "Knapsack.h"
 #include "Item.h"
 
 using namespace std;
 
-vector<Item*> items;
+int factorial(int x){
+    if (x <= 1){
+        return 1;
+    }
+    return x*factorial(x-1);
+}
 
-vector<Knapsack*> frontier;
-vector<Knapsack*> exploredSet;
+int KnapsackNodes(int itemcount){
+    int total = 0;
+
+    for (int i = 0; i < itemcount; i++)
+    {
+        total += factorial(itemcount)/factorial(i);
+    }
+    
+    return total;
+}
+
+class KnapsackHeuristic
+{
+public:
+    bool operator() (Knapsack* a, Knapsack* b){
+        return true;
+    }
+};
 
 void breadthFirstSearch();
 
+vector<Item*> items;
+
+//priority_queue<Knapsack, vector<Knapsack>, KnapsackHeuristic> frontier;
+vector<Knapsack> frontier;
+//vector<Knapsack> exploredSet;
 
 int main(int argc, char const *argv[])
 {
@@ -61,20 +88,42 @@ int main(int argc, char const *argv[])
         
     }
 
-    auto current = items.begin();
-    auto end = items.end();
+    Knapsack initialState(capacity);
+    frontier.push_back(initialState);
+    Knapsack bestNode = frontier.back();
+    cout << &bestNode << endl;
 
-    while (current != end)
+    int nodesFound = 0;
+    int nodesSearched = 0;
+    int limiter = 100000;
+
+    while (!frontier.empty() && limiter > nodesSearched)
     {
-        cout << (Item*)(*current);
-        current = next(current);
+        Knapsack currentNode = frontier.back();
+        frontier.pop_back();
+
+        //cout << "checking bag: " << &currentNode << endl;
+
+        if (currentNode.contentsWeight() < currentNode.getCapacity() && bestNode.contentsUtility() < currentNode.contentsUtility())
+        {
+            cout << "new best bag found: " << &currentNode << endl;
+            bestNode = currentNode;
+        }
+        
+        //exploredSet.push_back(currentNode);
+
+        vector<Knapsack> childNodes = currentNode.generateChildNodes(items);
+        nodesFound += childNodes.size();
+        frontier.insert(frontier.end(), childNodes.begin(), childNodes.end());
+
+        nodesSearched++;
     }
 
-    cout << endl;
-
-    Knapsack* initialState = new Knapsack(capacity);
-    frontier.push_back(initialState);
+    cout << "best bag found was: " << &bestNode << endl;
+    cout << "expected node count: " << KnapsackNodes(items.size()) << endl;
+    cout << "nodes found: " << nodesFound << endl;
+    cout << "nodes searched: " << nodesSearched << endl;
+    
 
     return 0;
 }
-

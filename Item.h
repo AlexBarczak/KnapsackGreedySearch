@@ -12,6 +12,8 @@ private:
     int utility;
 public:
     Item(int weight, int utility);
+    int getWeight();
+    int getUtility();
     friend ostream& operator<< (ostream &out, const Item *item);
 };
 

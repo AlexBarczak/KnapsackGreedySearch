@@ -15,3 +15,11 @@ Item::Item(int weight, int utility)
     this->weight = weight;
     this->utility = utility;
 }
+
+int Item::getWeight(){
+    return this->weight;
+}
+
+int Item::getUtility(){
+    return this->utility;
+}
