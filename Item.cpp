@@ -5,15 +5,21 @@
 using namespace std;
 
 ostream& operator<< (ostream &out, const Item *item){
-    out << "weight: " << item->weight << "\n"
+    out << "ID:     " << item->ID << "\n"
+        << "weight: " << item->weight << "\n"
         << "profit: " << item->utility << "\n";
     return out;
 }
 
-Item::Item(int weight, int utility)
+Item::Item(int ID, int weight, int utility)
 {
+    this->ID = ID;
     this->weight = weight;
     this->utility = utility;
+}
+
+int Item::getID(){
+    return this->ID;
 }
 
 int Item::getWeight(){

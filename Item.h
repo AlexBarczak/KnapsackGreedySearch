@@ -8,10 +8,12 @@ using namespace std;
 class Item
 {
 private:
+    int ID;
     int weight;
     int utility;
 public:
-    Item(int weight, int utility);
+    Item(int ID, int weight, int utility);
+    int getID();
     int getWeight();
     int getUtility();
     friend ostream& operator<< (ostream &out, const Item *item);

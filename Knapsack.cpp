@@ -51,7 +51,7 @@ ostream& operator<< (ostream &out, Knapsack* knapsack){
     return out;
 }
 
-vector<Knapsack> Knapsack::generateChildNodes(vector<Item*> availableItems){
+vector<Knapsack> Knapsack::generateChildNodes(set<Item*> availableItems){
     vector<Knapsack> childNodes;
 
     auto currentItem = availableItems.begin();
@@ -61,13 +61,29 @@ vector<Knapsack> Knapsack::generateChildNodes(vector<Item*> availableItems){
     {
         if(find(this->contents.begin(), this->contents.end(), *currentItem) == this->contents.end()) {
             Knapsack childNode(*this);
-            childNode.contents.push_back(*currentItem);
+            childNode.contents.insert(*currentItem);
             childNodes.push_back(childNode);
         }
 
         currentItem = next(currentItem);
     }
 
-    return childNodes;
-    
+    return childNodes;   
+}
+
+set<Item*>& Knapsack::getContents(){
+    return (this->contents);
+}
+
+int Knapsack::generateID(){
+    int KnapsackID = 0;
+    auto currentItem = this->contents.begin();
+    auto endItem = this->contents.end();
+
+    while (currentItem != endItem)
+    {
+        KnapsackID = KnapsackID | (1 << (*currentItem)->getID());
+        currentItem = next(currentItem);
+    }
+    return KnapsackID;
 }
