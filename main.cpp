@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <set>
+#include <cmath>
 
 #include "Knapsack.h"
 #include "Item.h"
@@ -159,7 +160,8 @@ int main(int argc, char const *argv[])
         auto endChildNode = childNodes.end();
 
         while (currentChildNode != endChildNode)
-        {
+        {            
+
             if ((*currentChildNode).contentsWeight() < (*currentChildNode).getCapacity() && exploredSet.find(currentChildNode->generateID()) == exploredSet.end())
             {
                 frontier.push_back(*currentChildNode);
@@ -173,10 +175,13 @@ int main(int argc, char const *argv[])
     }
 
     cout << "best bag found was: " << &bestNode << endl;
-    cout << "expected node count: " << knapsackNodes(items.size()) << endl;
+    cout << "max node count when order matters: " << knapsackNodes(items.size()) << endl;
+    cout << "max node count when order does not matter: " << pow(2, items.size()) << endl;
     cout << "nodes found: " << nodesFound << endl;
     cout << "nodes discarded: " << nodesDiscarded << endl;
     cout << "nodes searched: " << nodesSearched << endl;
+
+    cout << "percentage of unique item combinations searched: " << nodesSearched/pow(2, items.size())*100 << "%" << endl;
 
     return 0;
 }
