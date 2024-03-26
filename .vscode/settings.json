@@ -45,6 +45,9 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "queue": "cpp"
-    }
+        "queue": "cpp",
+        "set": "cpp",
+        "regex": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }

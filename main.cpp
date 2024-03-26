@@ -16,46 +16,83 @@
 
 using namespace std;
 
+struct compareIntArray{
+    public:
+    bool operator()(KnapsackID lhs, KnapsackID rhs) const 
+    {
+        if (lhs.size != rhs.size)
+        {
+            return lhs.size < rhs.size;
+        }
+        
+        for (int i = 0; i < lhs.size; i++)
+        {
+            if (lhs.ID[i] != rhs.ID[i])
+            {
+                return lhs.ID[i] < rhs.ID[i];
+            }
+        }
+
+        return false;
+    }
+};
+
+
 priority_queue<Knapsack, vector<Knapsack>, KnapsackCompare> frontier;
-set<int> exploredSet;
+set<KnapsackID, compareIntArray> exploredSet;
 
 int main(int argc, char const *argv[])
 {
     string fileChosen;
     string fileLine;
 
-    if (argc >= 3)
-    {
-        string fileName(argv[1]);
-        fileChosen = "DataFromFSU/" + fileName;
-    }else{
+    if (argc < 3){
         cout    << "arguments not supplied\n"
                 << "provide arguments as followed:\n"
-                << "./a.out <filepath> <datasource>\n"
-                << "where filepath points to a dataset and datasource is 'FSU' 'UC' 'JJ'\n"
-                << "for Florida State Uni, Cauca Univarsity and JorikJooken as the data sources to describe their format" << endl;
+                << "./a.out <filename> <datasource>\n"
+                << "where filepath points to a dataset and datasource is 'FSU' 'UC'\n"
+                << "for Florida State Uni and Cauca Univarsityas the data sources to describe their format\n"
+                << "DataFromFSU is the directory for FSU problems while large-scale is the directory for UC" << endl;
         return 0;
     }
 
     KnapsackData data;
 
-    if (argv[2] == "FSU")
+    if (string(argv[2]) == "FSU")
     {
-        KSReading::FSU_LoadItems(fileChosen, data);
-    } else if (argv[2] == "UC")
+        fileChosen = "DataFromFSU/" + string(argv[1]);
+        try
+        {
+            KSReading::FSU_LoadItems(fileChosen, data);
+        }
+        catch(const std::invalid_argument& e)
+        {
+            std::cerr << e.what() << '\n';
+            return 0;
+        }
+    } else if (string(argv[2]) == "UC")
     {
-        KSReading::UniCauca_LoadItems(fileChosen, data);
+        fileChosen = "large_scale/" + string(argv[1]);
+        try
+        {
+            KSReading::UniCauca_LoadItems(fileChosen, data);
+        }
+        catch(const std::invalid_argument& e)
+        {
+            std::cerr << e.what() << '\n';
+            return 0;
+        }
+    }else{
+        cout << "file format specified not recognised\n";
+        return 0;
     }
-
-    KSReading::FSU_LoadItems(fileChosen, data);
 
     Knapsack initialState(data.capacity);
     frontier.emplace(initialState);
     Knapsack bestNode = frontier.top();
     cout << &bestNode << endl;
 
-
-    // utility to weight eatio
+    // utility to weight ratio
     double BestU2WRatio = -1;
 
     auto current = data.items.begin();
@@ -99,6 +136,8 @@ int main(int argc, char const *argv[])
 
     while (!frontier.empty() && limiter > nodesSearched)
     {
+        cout << "hi" << endl;
+        
         // take next node in frontier and remove it from the frontier
         Knapsack currentNode = frontier.top();
         frontier.pop();
@@ -110,7 +149,9 @@ int main(int argc, char const *argv[])
 
         exploredSet.insert(currentNode.generateID());
         
-        
+        cout << "hello" << endl;
+
+
         // check if this node performs better than the previously best performing node
         if (currentNode.contentsWeight() <= currentNode.getCapacity() && bestNode.contentsUtility() < currentNode.contentsUtility())
         {
@@ -125,6 +166,8 @@ int main(int argc, char const *argv[])
         auto currentChildNode = childNodes.begin();
         auto endChildNode = childNodes.end();
 
+        cout << "hey" << endl;
+
         while (currentChildNode != endChildNode)
         {            
 
@@ -138,7 +181,7 @@ int main(int argc, char const *argv[])
             }
             currentChildNode = next(currentChildNode);
         }
-
+        
         nodesSearched++;
     }
 

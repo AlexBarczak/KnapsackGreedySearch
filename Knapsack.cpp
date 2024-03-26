@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <array>
 
 #include "Knapsack.h"
 #include "Item.h"
@@ -93,15 +94,52 @@ set<Item*>& Knapsack::getContents(){
     return (this->contents);
 }
 
-int Knapsack::generateID(){
-    int KnapsackID = 0;
+KnapsackID Knapsack::generateID(){
+    KnapsackID ksID;
     auto currentItem = this->contents.begin();
     auto endItem = this->contents.end();
 
+    int largestItemID = -1;
+
     while (currentItem != endItem)
     {
-        KnapsackID = KnapsackID | (1 << (*currentItem)->getID());
+        if ((*currentItem)->getID() > largestItemID)
+        {
+            largestItemID = (*currentItem)->getID();
+        }
         currentItem = next(currentItem);
     }
-    return KnapsackID;
+
+    if (largestItemID == -1)
+    {
+        ksID.size = 0;
+        ksID.ID = nullptr;
+        return ksID;
+    }
+
+    ksID.size = largestItemID / 32 + 1;
+    ksID.ID = new int[ksID.size];
+
+    for (int i = 0; i < ksID.size; i++)
+    {
+        ksID.ID = 0;
+    }
+
+    cout << "is setting them fine?" << endl;
+
+    auto startItem = this->contents.begin();
+
+    cout << "kill";
+
+    while (startItem != endItem)
+    {
+        
+        int id = (*startItem)->getID();
+        ksID.ID[id/32] = ksID.ID[id/32] | (1 << id%32);
+        startItem = next(startItem);
+    }
+
+    cout << "yes" << endl;
+
+    return ksID;
 }

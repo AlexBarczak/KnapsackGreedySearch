@@ -8,6 +8,19 @@
 
 using namespace std;
 
+struct KnapsackData
+{
+    public:
+    int capacity;
+    set<Item*> items;
+};
+
+struct KnapsackID{
+    public:
+    size_t size;
+    int* ID;
+};
+
 class Knapsack
 {
 private:
@@ -20,7 +33,7 @@ public:
     int contentsWeight();
     int contentsUtility();
     set<Item*>& getContents();
-    int generateID();
+    KnapsackID generateID();
     vector<Knapsack> generateChildNodes(set<Item*> availableItems);
     friend ostream& operator<< (ostream &out, Knapsack* knapsack);
 };
@@ -33,13 +46,5 @@ struct  KnapsackCompare
         return lhs.contentsUtility()/lhs.contentsWeight() < rhs.contentsUtility()/rhs.contentsWeight();
     }
 };
-
-struct KnapsackData
-{
-    public:
-    int capacity;
-    set<Item*> items;
-};
-
 
 #endif
