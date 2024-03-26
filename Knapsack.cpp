@@ -7,6 +7,11 @@
 
 using namespace std;
 
+Knapsack::Knapsack()
+{
+    this->capacity = 0;
+}
+
 Knapsack::Knapsack(int capacity)
 {
     this->capacity = capacity;

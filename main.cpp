@@ -7,92 +7,35 @@
 #include <string>
 #include <set>
 #include <cmath>
+#include <queue>
 
 #include "Knapsack.h"
+#include "KSReading.h"
 #include "Item.h"
+#include "KnapsackMetaData.h"
 
 using namespace std;
 
-// list of actions?
 set<Item*> items;
-
-// priority queue will be implemented once ready to start applying greedy best first search
-//priority_queue<Knapsack, vector<Knapsack>, KnapsackHeuristic> frontier;
-vector<Knapsack> frontier;
-// explored set will be implemented once ready to apply graph structure to set
+priority_queue<Knapsack, vector<Knapsack>, KnapsackCompare> frontier;
 set<int> exploredSet;
-
-// factorial function used to aid in the determining of total possible state nodes
-long factorial(int x){
-    if (x <= 1){
-        return 1;
-    }
-    return x*factorial(x-1);
-}
-
-// function for calculating the number of posssible states needing searched through
-// when a brute force method is taking and redundant cases are not discarded
-
-long knapsackNodes(int itemcount){
-    long total = 0;
-
-    for (int i = 0; i < itemcount; i++)
-    {
-        total += factorial(itemcount)/factorial(i);
-    }
-    
-    return total;
-}
-
-void loadItems(string filePath){
-    int itemID = 0;
-    vector<int> weights;
-    vector<int> profits;
-
-    string fileLine;
-    
-    // get item weights
-    ifstream dataFile(filePath + "_w.txt");
-    while (getline(dataFile, fileLine))
-    {
-        weights.push_back(stoi(fileLine));   
-    }
-    dataFile.close();
-
-    // get item profits
-    dataFile.open(filePath + "_p.txt");
-    while (getline(dataFile, fileLine))
-    {
-        profits.push_back(stoi(fileLine));   
-    }
-    dataFile.close();
-
-    auto currentw = weights.begin();        
-    auto currentp = profits.begin();
-
-    auto endw = weights.end();
-
-    while (currentw != endw)
-    {
-        Item* currentItem = new Item(itemID++, (*currentw), (*currentp));
-        items.insert(currentItem);
-
-        currentw = next(currentw);
-        currentp = next(currentp);
-    }
-}
 
 int main(int argc, char const *argv[])
 {
-    string fileChosen = "DataFromFSU/p02";
+    string fileChosen;
     string fileLine;
 
-    cout << "arguments found: " << argc << endl;
-
-    if (argc >= 2)
+    if (argc == 3)
     {
         string fileName(argv[1]);
         fileChosen = "DataFromFSU/" + fileName;
+    }else{
+        cout    << "arguments not supplied\n"
+                << "provide arguments as followed:\n"
+                << "./a.out <filepath> <datasource>\n"
+                << "where filepath points to a dataset and datasource is 'FSU' 'UC' 'JJ'\n"
+                << "for Florida State Uni, Cauca Univarsity and JorikJooken as the data sources to describe their format" << endl;
+        return 0;
     }
 
     // get capacity
@@ -108,12 +51,34 @@ int main(int argc, char const *argv[])
     dataFile.close();
     int capacity = stoi(fileLine);
 
-    loadItems(fileChosen);
+    KSReading::FSU_LoadItems(fileChosen, items);
 
     Knapsack initialState(capacity);
-    frontier.push_back(initialState);
-    Knapsack bestNode = frontier.back();
+    frontier.emplace(initialState);
+    Knapsack bestNode = frontier.top();
     cout << &bestNode << endl;
+
+
+    // utility to weight eatio
+    double BestU2WRatio = -1;
+
+    auto current = items.begin();
+    auto end = items.end();
+
+    while (current != end)
+    {
+        // figure out if this item has the best U2W ratio
+        // calculate U2W ratio
+        double U2W = (*current)->getUtility()/(*current)->getWeight();
+
+        if (U2W > BestU2WRatio)
+        {
+            BestU2WRatio = U2W;
+        }
+        
+        current = next(current);
+    }
+    
 
     int nodesFound = 0;
     int nodesDiscarded = 0;
@@ -139,8 +104,13 @@ int main(int argc, char const *argv[])
     while (!frontier.empty() && limiter > nodesSearched)
     {
         // take next node in frontier and remove it from the frontier
-        Knapsack currentNode = frontier.back();
-        frontier.pop_back();
+        Knapsack currentNode = frontier.top();
+        frontier.pop();
+
+        if (exploredSet.find(currentNode.generateID()) != exploredSet.end()){
+            nodesDiscarded++;
+            continue;
+        }
 
         exploredSet.insert(currentNode.generateID());
         
@@ -162,9 +132,11 @@ int main(int argc, char const *argv[])
         while (currentChildNode != endChildNode)
         {            
 
-            if ((*currentChildNode).contentsWeight() < (*currentChildNode).getCapacity() && exploredSet.find(currentChildNode->generateID()) == exploredSet.end())
+            if ((*currentChildNode).contentsWeight() < (*currentChildNode).getCapacity() && 
+                  exploredSet.find(currentChildNode->generateID()) == exploredSet.end() &&
+                  ((double)(capacity - currentChildNode->contentsWeight())*BestU2WRatio + (double)currentChildNode->contentsUtility() >= (double)bestNode.contentsUtility() * 0.99))
             {
-                frontier.push_back(*currentChildNode);
+                frontier.emplace(*currentChildNode);
             }else{
                 nodesDiscarded++;
             }
@@ -175,7 +147,7 @@ int main(int argc, char const *argv[])
     }
 
     cout << "best bag found was: " << &bestNode << endl;
-    cout << "max node count when order matters: " << knapsackNodes(items.size()) << endl;
+    cout << "max node count when order matters: " << KnapsackMetaData::knapsackNodes(items.size()) << endl;
     cout << "max node count when order does not matter: " << pow(2, items.size()) << endl;
     cout << "nodes found: " << nodesFound << endl;
     cout << "nodes discarded: " << nodesDiscarded << endl;
