@@ -5,15 +5,31 @@
 
 using namespace std;
 
-void  KSReading::FSU_LoadItems(std::string filepath, set<Item*>& items){
+void  KSReading::FSU_LoadItems(std::string filepath, KnapsackData& data){
+
+    set<Item*>* items = &(data.items);
+
     int itemID = 0;
     vector<int> weights;
     vector<int> profits;
 
     string fileLine;
+
+    // get capacity
+    cout << "filepath: " << filepath + "_c.txt" << endl;
+    ifstream dataFile(filepath + "_c.txt");
+
+    if(dataFile.fail()){
+        cout << "file not found" << endl;
+        throw new exception();
+    }
+
+    getline(dataFile, fileLine);
+    dataFile.close();
+    data.capacity = stoi(fileLine);
     
     // get item weights
-    ifstream dataFile(filepath + "_w.txt");
+    dataFile.open(filepath + "_w.txt");
     while (getline(dataFile, fileLine))
     {
         weights.push_back(stoi(fileLine));   
@@ -36,17 +52,17 @@ void  KSReading::FSU_LoadItems(std::string filepath, set<Item*>& items){
     while (currentw != endw)
     {
         Item* currentItem = new Item(itemID++, (*currentw), (*currentp));
-        items.insert(currentItem);
+        items->insert(currentItem);
 
         currentw = next(currentw);
         currentp = next(currentp);
     }
 }
 
-void  KSReading::UniCauca_LoadItems(std::string filepath, set<Item*>& items){
+void  KSReading::UniCauca_LoadItems(std::string filepath, KnapsackData& data){
 
 }
 
-void  KSReading::SD_LoadItems(std::string filepath, set<Item*>& items){
+void  KSReading::SD_LoadItems(std::string filepath, KnapsackData& data){
 
 }

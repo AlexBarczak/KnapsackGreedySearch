@@ -16,7 +16,6 @@
 
 using namespace std;
 
-set<Item*> items;
 priority_queue<Knapsack, vector<Knapsack>, KnapsackCompare> frontier;
 set<int> exploredSet;
 
@@ -25,7 +24,7 @@ int main(int argc, char const *argv[])
     string fileChosen;
     string fileLine;
 
-    if (argc == 3)
+    if (argc >= 3)
     {
         string fileName(argv[1]);
         fileChosen = "DataFromFSU/" + fileName;
@@ -38,22 +37,19 @@ int main(int argc, char const *argv[])
         return 0;
     }
 
-    // get capacity
-    cout << "filepath: " << fileChosen + "_c.txt" << endl;
-    ifstream dataFile(fileChosen + "_c.txt");
+    KnapsackData data;
 
-    if(dataFile.fail()){
-        cout << "file not found" << endl;
-        return 0;
+    if (argv[2] == "FSU")
+    {
+        KSReading::FSU_LoadItems(fileChosen, data);
+    } else if (argv[2] == "UC")
+    {
+        KSReading::UniCauca_LoadItems(fileChosen, data);
     }
 
-    getline(dataFile, fileLine);
-    dataFile.close();
-    int capacity = stoi(fileLine);
+    KSReading::FSU_LoadItems(fileChosen, data);
 
-    KSReading::FSU_LoadItems(fileChosen, items);
-
-    Knapsack initialState(capacity);
+    Knapsack initialState(data.capacity);
     frontier.emplace(initialState);
     Knapsack bestNode = frontier.top();
     cout << &bestNode << endl;
@@ -62,8 +58,8 @@ int main(int argc, char const *argv[])
     // utility to weight eatio
     double BestU2WRatio = -1;
 
-    auto current = items.begin();
-    auto end = items.end();
+    auto current = data.items.begin();
+    auto end = data.items.end();
 
     while (current != end)
     {
@@ -84,16 +80,16 @@ int main(int argc, char const *argv[])
     int nodesDiscarded = 0;
     int nodesSearched = 0;
     int limiter = 1000000;
-    if (argc >= 3)
+    if (argc == 4)
     {
         try
         {
-            limiter = stoi(argv[2]);
+            limiter = stoi(argv[3]);
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
-            cout << "putting value of limiter back to 1000000";
+            cout << "putting value of limiter back to 1000000" << endl;
             limiter = 1000000;
         }
         
@@ -116,14 +112,14 @@ int main(int argc, char const *argv[])
         
         
         // check if this node performs better than the previously best performing node
-        if (currentNode.contentsWeight() < currentNode.getCapacity() && bestNode.contentsUtility() < currentNode.contentsUtility())
+        if (currentNode.contentsWeight() <= currentNode.getCapacity() && bestNode.contentsUtility() < currentNode.contentsUtility())
         {
             cout << "new best bag found: " << &currentNode << endl;
             bestNode = currentNode;
         }
 
         // get the child nodes available from this node and add them to the frontier
-        vector<Knapsack> childNodes = currentNode.generateChildNodes(items);
+        vector<Knapsack> childNodes = currentNode.generateChildNodes(data.items);
         nodesFound += childNodes.size();
 
         auto currentChildNode = childNodes.begin();
@@ -132,9 +128,9 @@ int main(int argc, char const *argv[])
         while (currentChildNode != endChildNode)
         {            
 
-            if ((*currentChildNode).contentsWeight() < (*currentChildNode).getCapacity() && 
+            if ((*currentChildNode).contentsWeight() <= (*currentChildNode).getCapacity() && 
                   exploredSet.find(currentChildNode->generateID()) == exploredSet.end() &&
-                  ((double)(capacity - currentChildNode->contentsWeight())*BestU2WRatio + (double)currentChildNode->contentsUtility() >= (double)bestNode.contentsUtility() * 0.99))
+                  ((double)(data.capacity - currentChildNode->contentsWeight())*BestU2WRatio + (double)currentChildNode->contentsUtility() >= (double)bestNode.contentsUtility() * 0.99))
             {
                 frontier.emplace(*currentChildNode);
             }else{
@@ -147,13 +143,13 @@ int main(int argc, char const *argv[])
     }
 
     cout << "best bag found was: " << &bestNode << endl;
-    cout << "max node count when order matters: " << KnapsackMetaData::knapsackNodes(items.size()) << endl;
-    cout << "max node count when order does not matter: " << pow(2, items.size()) << endl;
+    cout << "max node count when order matters: " << KnapsackMetaData::knapsackNodes(data.items.size()) << endl;
+    cout << "max node count when order does not matter: " << pow(2, data.items.size()) << endl;
     cout << "nodes found: " << nodesFound << endl;
     cout << "nodes discarded: " << nodesDiscarded << endl;
     cout << "nodes searched: " << nodesSearched << endl;
 
-    cout << "percentage of unique item combinations searched: " << nodesSearched/pow(2, items.size())*100 << "%" << endl;
+    cout << "percentage of unique item combinations searched: " << nodesSearched/pow(2, data.items.size())*100 << "%" << endl;
 
     return 0;
 }

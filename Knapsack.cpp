@@ -53,6 +53,19 @@ int Knapsack::getCapacity(){
 
 ostream& operator<< (ostream &out, Knapsack* knapsack){
     out << "Bag contents weight: " << knapsack->contentsWeight() << " and have utility: " << knapsack->contentsUtility();
+
+    auto currentItem = knapsack->getContents().begin();
+    auto endItem = knapsack->getContents().end();
+
+    out << endl << "contents: " << endl;
+
+    while (currentItem != endItem)
+    {
+        out << (*currentItem)->getID() << " ";
+        currentItem = next(currentItem);
+    }
+    
+
     return out;
 }
 

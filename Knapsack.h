@@ -34,4 +34,12 @@ struct  KnapsackCompare
     }
 };
 
+struct KnapsackData
+{
+    public:
+    int capacity;
+    set<Item*> items;
+};
+
+
 #endif
