@@ -1,0 +1,1 @@
+g++ main.cpp Knapsack.cpp Item.cpp KSReading.cpp KnapsackMetaData.cpp
