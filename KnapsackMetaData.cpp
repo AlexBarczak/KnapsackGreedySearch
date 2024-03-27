@@ -1,3 +1,8 @@
+/*
+    Author: Aleksander Barczak
+    Matric number: 2497555
+    AI Project Team 2
+*/
 #include "KnapsackMetaData.h"
 
 // factorial function used to aid in the determining of total possible state nodes

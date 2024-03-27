@@ -1,3 +1,8 @@
+/*
+    Author: Aleksander Barczak
+    Matric number: 2497555
+    AI Project Team 2
+*/
 #ifndef KNAPSACK_DATA_READING_H
 #define KNAPSACK_DATA_READING_H
 
