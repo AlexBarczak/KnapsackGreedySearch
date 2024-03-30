@@ -45,7 +45,9 @@ struct compareIntArray{
 // priority queue for using best first search, and a set of explored KnapsacksIDs to allow
 // graph search
 priority_queue<Knapsack, vector<Knapsack>, KnapsackCompare> frontier;
-set<KnapsackID, compareIntArray> exploredSet;
+// instead of using an explored set to prevent exploring previously seen nodes,
+// we can alter the child node generation to prevent the suggesting of those nodes
+// set<KnapsackID, compareIntArray> exploredSet;
 
 int main(int argc, char const *argv[])
 {
@@ -174,8 +176,10 @@ int main(int argc, char const *argv[])
         Knapsack currentNode = frontier.top();
         frontier.pop();
 
+        /*
+
         // generate node ID
-        KnapsackID NodeID =  currentNode.generateID();
+        KnapsackID NodeID =  currentNode.generateID();        
 
         // check node has not already been explored
         if (exploredSet.find(NodeID) != exploredSet.end()){
@@ -186,6 +190,8 @@ int main(int argc, char const *argv[])
 
         // place node into explored set
         exploredSet.insert(NodeID);
+
+        */
 
         // check if this node performs better than the previously best performing node
         if (currentNode.contentsWeight() <= currentNode.getCapacity() && bestNode.contentsUtility() < currentNode.contentsUtility())
@@ -205,12 +211,12 @@ int main(int argc, char const *argv[])
         while (currentChildNode != endChildNode)
         {            
             // get the id of the node
-            KnapsackID childNodeID = currentChildNode->generateID();
+            //KnapsackID childNodeID = currentChildNode->generateID();
 
             // discard the child if it exceeds the knapsack -- very basic CSP
             if ((*currentChildNode).contentsWeight() <= (*currentChildNode).getCapacity() &&
                 // discard if node is in explored set 
-                  exploredSet.find(childNodeID) == exploredSet.end() &&
+                //  exploredSet.find(childNodeID) == exploredSet.end() &&
                 // discard if node cannot surpass best node currently found -- dynamic CSP
                 // the use of of converting values to doubles is due to errors found in previous versions of the program
                 // believed to be due to floating point number accuracy issues, the program would discard items with very close

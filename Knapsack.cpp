@@ -97,6 +97,24 @@ vector<Knapsack> Knapsack::generateChildNodes(set<Item*> availableItems){
     // initialise list
     vector<Knapsack> childNodes;
 
+    auto start = this->contents.begin();
+    auto end = this->contents.end();
+
+    int lowestID = 0;
+
+    if (start != end)
+    {
+        lowestID = (*start)->getID();
+        while (start != end)
+        {
+            if ((*start)->getID() < lowestID)
+            {
+                lowestID = (*start)->getID();
+            }
+            start = next(start);
+        }
+    }
+
     // for each item available
     auto currentItem = availableItems.begin();
     auto endItem = availableItems.end();
@@ -104,7 +122,7 @@ vector<Knapsack> Knapsack::generateChildNodes(set<Item*> availableItems){
     while (currentItem != endItem)
     {
         // if the item is not in the bag already
-        if(find(this->contents.begin(), this->contents.end(), *currentItem) == this->contents.end()) {
+        if((*currentItem)->getID() > lowestID && find(this->contents.begin(), this->contents.end(), *currentItem) == this->contents.end()) {
             // create a new bag based on this one
             Knapsack childNode(*this);
             // add in the missing item
