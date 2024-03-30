@@ -178,7 +178,7 @@ int main(int argc, char const *argv[])
                 // the use of of converting values to doubles is due to errors found in previous versions of the program
                 // believed to be due to floating point number accuracy issues, the program would discard items with very close
                 // values
-                ((data.capacity - currentChildNode->contentsWeight())*BestU2WRatio + currentChildNode->contentsUtility() >= bestNode.contentsUtility()))
+                ((data.capacity - currentChildNode->contentsWeight())*((double)currentChildNode->contentsUtility()/(double)currentChildNode->contentsWeight()) + currentChildNode->contentsUtility() >= bestNode.contentsUtility()))
             {
                 // if suitable, add child node to those to be explored
                 frontier.emplace(*currentChildNode);
