@@ -47,7 +47,10 @@
         "typeinfo": "cpp",
         "queue": "cpp",
         "set": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "xstring": "cpp",
+        "stack": "cpp",
+        "xtree": "cpp"
     },
     "cmake.configureOnOpen": false
 }

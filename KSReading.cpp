@@ -15,7 +15,7 @@ using namespace std;
 void  KSReading::FSU_LoadItems(std::string filepath, KnapsackData& data){
 
     // write the items directly to the data struct
-    set<Item*>* items = &(data.items);
+    set<Item*, p_ItemSorter>* items = &(data.items);
 
     // FSU stores problems details across four file,
     // the p, w, s, and c file corresponding to the profit, weight, solution and capacity
@@ -74,13 +74,27 @@ void  KSReading::FSU_LoadItems(std::string filepath, KnapsackData& data){
         currentw = next(currentw);
         currentp = next(currentp);
     }
+
+    //assign ordering ID
+    auto currentItem = items->begin();
+    auto endItem = items->end();
+    int orderingID = 0;
+
+    while (currentItem != endItem)
+    {
+        (*currentItem)->orderingID = orderingID;
+        orderingID++;
+
+        currentItem = next(currentItem);
+    }
+    
 }
 
 // function for reading in data from the University of Cauca datasets
 void  KSReading::UniCauca_LoadItems(std::string filepath, KnapsackData& data){
 
     // write the items directly to the data struct
-    set<Item*>* items = &(data.items);
+    set<Item*, p_ItemSorter>* items = &(data.items);
 
     int itemID = 0;
 
@@ -130,15 +144,55 @@ void  KSReading::UniCauca_LoadItems(std::string filepath, KnapsackData& data){
     for (int i = 0; i < itemCount; i++){
         getline(dataFile, fileLine);
         stringstream ss(fileLine);
-        // get item weights
-        ss >> word;
-        weight = stoi(word);        
         // get item profits
         ss >> word;
         profit = stoi(word);
+        // get item weights
+        ss >> word;
+        weight = stoi(word);        
 
         Item* currentItem = new Item(itemID++, weight, profit);
         items->insert(currentItem);
+    }
+
+    // get solution line
+    getline(dataFile, fileLine);
+    stringstream ss(fileLine);
+    int s_ID = 0;
+
+    for (int i = 0; i < itemCount; i++)
+    {
+        ss >> word;
+        if (word == "1")
+        {
+            // find pointer of item with ID = s_ID
+            auto currentItem = items->begin();
+            auto endItem = items->end();
+
+            while (currentItem != endItem)
+            {
+                if((*currentItem)->getID() == s_ID){
+                    data.solution.push_back(*currentItem);
+                    break;
+                }
+
+                currentItem = next(currentItem);
+            }
+        }
+        s_ID++;
+    }
+    
+    //assign ordering ID
+    auto currentItem = items->begin();
+    auto endItem = items->end();
+    int orderingID = 0;
+
+    while (currentItem != endItem)
+    {
+        (*currentItem)->orderingID = orderingID;
+        orderingID++;
+
+        currentItem = next(currentItem);
     }
     
 }

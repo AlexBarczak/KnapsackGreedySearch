@@ -93,23 +93,29 @@ ostream& operator<< (ostream &out, Knapsack* knapsack){
 }
 
 // create child nodes for searching the state space
-vector<Knapsack> Knapsack::generateChildNodes(set<Item*> availableItems){
+vector<Knapsack> Knapsack::generateChildNodes(set<Item*, p_ItemSorter> availableItems){
     // initialise list
     vector<Knapsack> childNodes;
 
     auto start = this->contents.begin();
     auto end = this->contents.end();
 
-    int lowestID = 0;
+    int lowestID = -1;
+    int highestID = -1;
 
     if (start != end)
     {
-        lowestID = (*start)->getID();
+        lowestID = (*start)->orderingID;
+        highestID = (*start)->orderingID;
         while (start != end)
         {
-            if ((*start)->getID() < lowestID)
+            if ((*start)->orderingID < lowestID)
             {
-                lowestID = (*start)->getID();
+                lowestID = (*start)->orderingID;
+            }
+            if ((*start)->orderingID > highestID)
+            {
+                highestID = (*start)->orderingID;
             }
             start = next(start);
         }
@@ -122,7 +128,7 @@ vector<Knapsack> Knapsack::generateChildNodes(set<Item*> availableItems){
     while (currentItem != endItem)
     {
         // if the item is not in the bag already
-        if((*currentItem)->getID() > lowestID && find(this->contents.begin(), this->contents.end(), *currentItem) == this->contents.end()) {
+        if((*currentItem)->orderingID > lowestID && (*currentItem)->orderingID > highestID && find(this->contents.begin(), this->contents.end(), *currentItem) == this->contents.end()) {
             // create a new bag based on this one
             Knapsack childNode(*this);
             // add in the missing item

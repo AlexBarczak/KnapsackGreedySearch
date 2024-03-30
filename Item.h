@@ -18,6 +18,7 @@ private:
     int weight;
     int utility;
 public:
+    int orderingID;
     // constructor
     Item(int ID, int weight, int utility);
     // getters
@@ -26,6 +27,22 @@ public:
     int getUtility();
     // stream writer
     friend ostream& operator<< (ostream &out, const Item *item);
+};
+
+struct p_ItemSorter{
+    public:
+    bool operator()(Item* lhs, Item* rhs) const 
+    {
+
+        float LRatio = (float)lhs->getUtility()/(float)lhs->getWeight();
+        float RRatio = (float)rhs->getUtility()/(float)rhs->getWeight();
+        if (LRatio == RRatio)
+        {
+            return lhs->getID() > rhs->getID();
+        }
+        
+        return LRatio > RRatio; 
+    }
 };
 
 #endif

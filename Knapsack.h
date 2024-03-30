@@ -18,7 +18,8 @@ struct KnapsackData
 {
     public:
     int capacity;
-    set<Item*> items;
+    set<Item*, p_ItemSorter> items;
+    vector<Item*> solution;
 };
 
 // struct for representing the knapsack ID, more efficient storage of data than storing the whole node in the
@@ -52,22 +53,8 @@ public:
     set<Item*>& getContents();
     // return the id of the node
     KnapsackID generateID();
-    vector<Knapsack> generateChildNodes(set<Item*> availableItems);
+    vector<Knapsack> generateChildNodes(set<Item*, p_ItemSorter> availableItems);
     friend ostream& operator<< (ostream &out, Knapsack* knapsack);
-};
-
-// comparison struct for priority queue to implement searching algorithm built on my specification
-struct  KnapsackCompare
-{
-    // prioritises the searching of nodes with greatest ratio of utility to weight, the reasoning is to bolster the effectiveness
-    // of the dynamic CSP, really it should be improved by making the program solve sub-problems, like solving the max utility
-    // that we can fit into a smaller amount of sack space before actually fitting the remaining space with a maximum ratio
-    // however... time constraints
-    public:
-    bool operator()(Knapsack& lhs, Knapsack& rhs) const 
-    {
-        return lhs.contentsUtility()/lhs.contentsWeight() < rhs.contentsUtility()/rhs.contentsWeight();
-    }
 };
 
 #endif
